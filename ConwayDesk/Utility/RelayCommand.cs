@@ -2,6 +2,15 @@
 
 namespace ConwayDesk
 {
+    /// <summary>
+    /// Represents a command that can be executed in the context of this 
+    /// application, with the ability to determine whether the command can 
+    /// execute based on a specified condition.
+    /// </summary>
+    /// <remarks>The <see cref="RelayCommand"/> class is commonly used in MVVM 
+    /// applications to bind commands to UI elements. It allows the execution 
+    /// logic and the condition for execution to be specified via delegates.
+    /// </remarks>
     public class RelayCommand : ICommand
     {
         private readonly Action<object> _execute;

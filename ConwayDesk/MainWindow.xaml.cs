@@ -5,7 +5,14 @@ using System.Windows.Threading;
 
 namespace ConwayDesk
 {
-
+    /// <summary>
+    /// Represents the main window of the application, providing the 
+    /// user interface for interacting with the game.
+    /// </summary>
+    /// <remarks>The <c>MainWindow</c> class is responsible for initializing 
+    /// the user interface, handling user interactions, and managing the layout
+    /// of the game area. It interacts with the <see cref="GameViewModel"/> to
+    /// reflect the current state of the game and respond to changes.</remarks>
     public partial class MainWindow : Window
     {
         // ---------------------------------------------------------------------
@@ -52,6 +59,17 @@ namespace ConwayDesk
 
         public int GridSize => _viewModel.GridSize;
 
+        /// <summary>
+        /// Handles the PreviewMouseLeftButtonDown event for a cell in the game 
+        /// grid.
+        /// </summary>
+        /// <remarks>This method toggles the active state of a cell when the 
+        /// game is not running.  It captures the mouse to allow for continuous 
+        /// drawing and marks the event as handled.</remarks>
+        /// <param name="sender">The source of the event, expected to be a 
+        /// FrameworkElement representing a cell.</param>
+        /// <param name="e">The MouseButtonEventArgs containing event data.
+        /// </param>
         private void Cell_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (_viewModel.IsGameRunning)
@@ -74,6 +92,15 @@ namespace ConwayDesk
             e.Handled = true;
         }
 
+        /// <summary>
+        /// Updates the sizes of the header and game area based on the current 
+        /// window dimensions and grid size.
+        /// </summary>
+        /// <remarks>This method calculates the available space for the game 
+        /// area and header by considering the window's actual size, margins, 
+        /// and non-client area height. It then adjusts the cell size in
+        /// the view model and updates the dimensions of the game area and 
+        /// header accordingly.</remarks>
         private void UpdateHeaderAndGameAreaSize()
         {
             double nonClientAreaHeight = 0;
@@ -103,7 +130,6 @@ namespace ConwayDesk
             }), DispatcherPriority.Background);
         }
 
-        // Garantisce l'aspect ratio della GameArea 1:1 al cambiamento della dimensione della finestra
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             if (e.WidthChanged || e.HeightChanged)
@@ -117,33 +143,38 @@ namespace ConwayDesk
             UpdateHeaderAndGameAreaSize();
         }
 
-        // Gestisce la visualizzazione o meno della barra UI di wondows al
-        // movimento del mouse, se il mouse si trova nel raggio di azione
-        // della barra superiore, la barra torna visibile
+        /// <summary>
+        /// Handles the mouse movement events within the window, updating cell 
+        /// states and managing fullscreen mode
+        /// transitions.
+        /// </summary>
+        /// <remarks>This method updates the state of cells in the game area 
+        /// when the left mouse button is pressed and the mouse is moved.
+        /// It also toggles the window's fullscreen mode based on the mouse 
+        /// position relative to the top of the window.</remarks>
+        /// <param name="sender">The source of the event, typically the window.
+        /// </param>
+        /// <param name="e">The <see cref="MouseEventArgs"/> instance containing
+        /// the event data, including mouse position and button states.</param>
         private void Window_MouseMove(object sender, MouseEventArgs e)
         {
             Point position;
 
             if (e.LeftButton == MouseButtonState.Pressed && GameArea.IsMouseCaptured)
             {
-                // Ottengo la posizione del mouse relativa alla GameArea
                 position = e.GetPosition(GameArea);
 
-                // Calcolo l'indice della riga e colonna basandomi sulla posizione e CellSize
                 int col = (int)(position.X / _viewModel.CellSize);
                 int row = (int)(position.Y / _viewModel.CellSize);
 
-                // Mi assicuro che gli indici siano validi
                 if (row >= 0 && row < GridSize && col >= 0 && col < GridSize)
                 {
-                    // Calcolo l'indice piatto per  Cells
                     int index = row * GridSize + col;
 
                     if (index < _viewModel.Cells.Count)
                     {
                         Cell cell = _viewModel.Cells[index];
 
-                        // Applico il cambio di stato SOLO se è una cella diversa dall'ultima
                         if (cell != _lastClickedCell)
                         {
                             cell.IsActive = _isDrawingMode;
@@ -165,7 +196,6 @@ namespace ConwayDesk
             position = e.GetPosition(this);
             bool mouseIsAtTop = position.Y < MouseDetectionArea;
 
-            // Logica ottimizzata: chiama SetFullscreenMode solo se lo stato DEVE cambiare
             if (mouseIsAtTop && WindowStyle != WindowStyle.SingleBorderWindow)
             {
                 SetFullscreenMode(false);
@@ -176,7 +206,6 @@ namespace ConwayDesk
             }
         }
 
-        // Imposto la modalità FullScreen
         private void SetFullscreenMode(bool isFullscreen)
         {
             if (isFullscreen)
@@ -190,13 +219,21 @@ namespace ConwayDesk
                 ResizeMode = ResizeMode.CanResizeWithGrip;
             }
 
-            // Ricalcolo il layout dopo che lo stile della finestra è cambiato.
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 UpdateHeaderAndGameAreaSize();
             }), DispatcherPriority.Loaded);
         }
 
+        /// <summary>
+        /// Handles the MouseLeftButtonUp event for the window.
+        /// </summary>
+        /// <remarks>This method releases any mouse capture held by the GameArea
+        /// and resets the last clicked cell. It also marks the event as handled
+        /// to prevent further processing.</remarks>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data containing information about the
+        /// mouse button event.</param>
         private void Window_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (GameArea.IsMouseCaptured)
