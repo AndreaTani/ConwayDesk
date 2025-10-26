@@ -1,0 +1,101 @@
+﻿<Window x:Class="ConwayDesk.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ConwayDesk"
+        mc:Ignorable="d"
+        Background="{x:Static local:ColorConstants.WindowBackground}"
+        Title="ConwayDesk" Height="880" Width="800"
+        MinWidth="600" MinHeight="680"
+        SizeChanged="Window_SizeChanged"
+        WindowStyle="SingleBorderWindow" 
+        WindowStartupLocation="CenterScreen"
+        Loaded="Window_Loaded"
+        MouseMove="Window_MouseMove"
+        MouseLeftButtonUp="Window_MouseLeftButtonUp">
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border x:Name="Header" 
+                Grid.Row="0" 
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Background="{x:Static local:ColorConstants.HeaderBackground}" 
+                Margin="10,10,10,5">
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="200"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
+
+                    <Button Content="{Binding StartStopButtonText}" 
+                            Command="{Binding StartStopCommand}"
+                            Margin="0,0,10,0" 
+                            Padding="10,5"/>
+
+                    <Button Content="Reset" 
+                            Command="{Binding ResetCommand}"
+                            Margin="0,0,10,0" 
+                            Padding="10,5"/>
+
+                    <Button Content="Random Seed" 
+                            Command="{Binding SeedCommand}"
+                            Padding="10,5"/>
+
+                </StackPanel>
+
+                <TextBlock x:Name="StatusText"
+                       Grid.Column="2"
+                       Text="{Binding Generation, StringFormat=Generation  # {0}}"
+                       Foreground="{x:Static local:ColorConstants.White}"
+                       FontSize="16" 
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Center"
+                       Margin="0,0,10,0"/>
+
+            </Grid>
+        </Border>
+
+        <Border x:Name="GameArea"
+            Grid.Row="1"
+            HorizontalAlignment="Center" 
+            VerticalAlignment="Center"
+            Background="{x:Static local:ColorConstants.GameAreaBackground}" 
+            Margin="10,5,10,10">
+
+            <ItemsControl ItemsSource="{Binding Cells}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Width="{Binding RelativeSource={RelativeSource AncestorType=Border}, Path=ActualWidth}" 
+                                   Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Width="{Binding DataContext.CellSize, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                Height="{Binding DataContext.CellSize, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                
+                                Background="{Binding FillColor}"
+                                BorderBrush="{x:Static local:ColorConstants.CellBorder}" 
+                                BorderThickness="1"
+                
+                                PreviewMouseLeftButtonDown="Cell_PreviewMouseLeftButtonDown">
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+        </Border>
+    </Grid>
+    
+</Window>
